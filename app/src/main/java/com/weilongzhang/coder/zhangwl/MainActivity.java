@@ -2,6 +2,7 @@ package com.weilongzhang.coder.zhangwl;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 
 import com.weilongzhang.coder.zhangwl.customview.ProgressCircle;
@@ -21,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
         progressCircle.setOnProgressChangeListener(new OnProgressChangeListener() {
             @Override
             public void progressChanging(String percent) {
-
+                Log.d("",percent);
             }
 
             @Override
