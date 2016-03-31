@@ -103,7 +103,9 @@ public class ProgressCircle extends View {
         //进度圆画笔
         ftCirclePaint.setStrokeWidth(frontRoundWidth); //设置圆环的宽度
         ftCirclePaint.setColor(roundProgressColor);  //设置进度的颜色
+        ftCirclePaint.setAntiAlias(true);
 
+        ftCirclePaintArrow.setAntiAlias(true);
         ftCirclePaintArrow.setColor(roundProgressColor);
         ftCirclePaintArrow.setStyle(Paint.Style.FILL);
         mTypedArray.recycle();
@@ -157,12 +159,16 @@ public class ProgressCircle extends View {
                 break;
             }
         }
-        //进度条最前面的圆形图
+        //进度条最前面和最后面的圆形图（sin和cos里面是π值，需要转化）
         int angle = (int) (startAngle + sweepAngle * progress/max);
-        int smallCircleY = (int) ((center - frontRoundWidth/2)*Math.sin(angle));
-        int smallCircleX = (int) ((center - frontRoundWidth/2)*Math.cos(angle));
+        int frontSmallCircleY = (int) ((center - frontRoundWidth/2)*Math.sin(Math.PI/180 * angle));
+        int frontSmallCircleX = (int) ((center - frontRoundWidth/2)*Math.cos(Math.PI/180 * angle));
+        int backSmallCircleX = (int) ((center - frontRoundWidth/2)*Math.cos(Math.PI/180 * startAngle));
+        int backSmallCircleY = (int) ((center - frontRoundWidth/2)*Math.sin(Math.PI/180 * startAngle));
+        //画布移动，然后画进度条最前面的圆和最后面的圆，画完之后恢复画布
         canvas.translate(center,center);
-        canvas.drawCircle(smallCircleX,smallCircleY,frontRoundWidth/2,ftCirclePaintArrow);
+        canvas.drawCircle(frontSmallCircleX,frontSmallCircleY,frontRoundWidth/2,ftCirclePaintArrow);
+        canvas.drawCircle(backSmallCircleX,backSmallCircleY,frontRoundWidth/2,ftCirclePaintArrow);
         canvas.translate(-center,-center);
 
         if (canAnimation){
