@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         progressCircle = (ProgressCircle) this.findViewById(R.id.rp);
-        progressCircle.setProgress(85);
+        progressCircle.setProgress(99);
         progressCircle.setCanAnimation(true);
         progressCircle.setOnProgressChangeListener(new OnProgressChangeListener() {
             @Override
