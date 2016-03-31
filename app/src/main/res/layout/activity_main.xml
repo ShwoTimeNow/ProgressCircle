@@ -32,4 +32,14 @@
         android_custom:shape="ARC"
         android_custom:startAngle="135"
         android_custom:sweepAngle="270"/>
+    <TextView
+        android:id="@+id/tv_onclick"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:text="textview onclick"
+        android:gravity="center"
+        android:clickable="false"
+        android:background="@android:color/holo_red_dark"
+        android:layout_height="80dp"/>
+
 </RelativeLayout>

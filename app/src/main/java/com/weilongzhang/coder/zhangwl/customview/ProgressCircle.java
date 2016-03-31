@@ -23,6 +23,7 @@ public class ProgressCircle extends View {
     private Paint bgCirclePaint;
     private Paint ftCirclePaint;
     private Paint textPaint;
+    private Paint ftCirclePaintArrow;
     //圆环的颜色
     private int roundColor;
     //圆环进度的颜色
@@ -60,9 +61,6 @@ public class ProgressCircle extends View {
 
     private OnProgressChangeListener onProgressChangeListener;
 
-
-
-
     public ProgressCircle(Context context) {
         this(context, null);
     }
@@ -91,6 +89,7 @@ public class ProgressCircle extends View {
         bgCirclePaint = new Paint();
         ftCirclePaint = new Paint();
         textPaint = new Paint();
+        ftCirclePaintArrow = new Paint();
         //文字画笔
         textPaint.setStrokeWidth(0);
         textPaint.setColor(textColor);
@@ -105,9 +104,9 @@ public class ProgressCircle extends View {
         ftCirclePaint.setStrokeWidth(frontRoundWidth); //设置圆环的宽度
         ftCirclePaint.setColor(roundProgressColor);  //设置进度的颜色
 
+        ftCirclePaintArrow.setColor(roundProgressColor);
+        ftCirclePaintArrow.setStyle(Paint.Style.FILL);
         mTypedArray.recycle();
-
-
     }
 
     @Override
@@ -158,6 +157,14 @@ public class ProgressCircle extends View {
                 break;
             }
         }
+        //进度条最前面的圆形图
+        int angle = (int) (startAngle + sweepAngle * progress/max);
+        int smallCircleY = (int) ((center - frontRoundWidth/2)*Math.sin(angle));
+        int smallCircleX = (int) ((center - frontRoundWidth/2)*Math.cos(angle));
+        canvas.translate(center,center);
+        canvas.drawCircle(smallCircleX,smallCircleY,frontRoundWidth/2,ftCirclePaintArrow);
+        canvas.translate(-center,-center);
+
         if (canAnimation){
             if (startValue >= defaultProgress){
                 if (onProgressChangeListener!=null){
