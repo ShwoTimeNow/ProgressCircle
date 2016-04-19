@@ -1,4 +1,4 @@
-package com.knowbox.rc.widgets;
+package com.weilongzhang.coder.zhangwl.customview;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -11,7 +11,8 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.knowbox.rc.student.pk.R;
+import com.weilongzhang.coder.zhangwl.R;
+
 
 /**
  * Created by weilongzhang on 16/3/24.
@@ -85,7 +86,6 @@ public class ProgressCircleView extends View {
     public ProgressCircleView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         TypedArray mTypedArray = context.obtainStyledAttributes(attrs, R.styleable.RoundProgressBar);
-        sumTime = mTypedArray.getFloat(R.styleable.RoundProgressBar_sumTime,2000);
         roundColor = mTypedArray.getColor(R.styleable.RoundProgressBar_roundColor, Color.RED);
         roundProgressColor = mTypedArray.getColor(R.styleable.RoundProgressBar_roundProgressColor, Color.GREEN);
         textColor = mTypedArray.getColor(R.styleable.RoundProgressBar_textColor, Color.GREEN);
