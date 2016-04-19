@@ -28,10 +28,10 @@
         android_custom:textSize="40sp"
         android_custom:textIsDisplayable="true"
         android_custom:backgroundRoundWidth="10dip"
-        android_custom:frontRoundWidth="20dp"
+        android_custom:frontRoundWidth="5dp"
         android_custom:shape="ARC"
-        android_custom:startAngle="135"
-        android_custom:sweepAngle="270"/>
+        android_custom:startAngle="-90"
+        android_custom:sweepAngle="360"/>
     <TextView
         android:id="@+id/tv_onclick"
         android:layout_alignParentBottom="true"

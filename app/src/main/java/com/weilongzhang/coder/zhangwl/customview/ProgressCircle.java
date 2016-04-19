@@ -1,4 +1,4 @@
-package com.weilongzhang.coder.zhangwl.customview;
+package com.knowbox.rc.widgets;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -11,13 +11,13 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.weilongzhang.coder.zhangwl.R;
+import com.knowbox.rc.student.pk.R;
 
 /**
  * Created by weilongzhang on 16/3/24.
  * 带有圆形进度条的圆
  */
-public class ProgressCircle extends View {
+public class ProgressCircleView extends View {
 
     //画笔对象的引用
     private Paint bgCirclePaint;
@@ -59,19 +59,33 @@ public class ProgressCircle extends View {
     private boolean canAnimation;
     private int defaultProgress;
 
-    private OnProgressChangeListener onProgressChangeListener;
+    private float maxRoundWidth;//背景圈和前景进度最大的宽
 
-    public ProgressCircle(Context context) {
+    private OnProgressChangeListener onProgressChangeListener;
+    private float sumTime;//动画执行完成的总时间
+    private int center;
+    private int backgroundRadius;
+    private RectF rectF;
+    private int percent;
+    private RectF oval;
+    private float angle;
+    private float frontSmallCircleX;
+    private float frontSmallCircleY;
+    private float backSmallCircleX;
+    private float backSmallCircleY;
+
+    public ProgressCircleView(Context context) {
         this(context, null);
     }
 
-    public ProgressCircle(Context context, AttributeSet attrs) {
+    public ProgressCircleView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public ProgressCircle(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ProgressCircleView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         TypedArray mTypedArray = context.obtainStyledAttributes(attrs, R.styleable.RoundProgressBar);
+        sumTime = mTypedArray.getFloat(R.styleable.RoundProgressBar_sumTime,2000);
         roundColor = mTypedArray.getColor(R.styleable.RoundProgressBar_roundColor, Color.RED);
         roundProgressColor = mTypedArray.getColor(R.styleable.RoundProgressBar_roundProgressColor, Color.GREEN);
         textColor = mTypedArray.getColor(R.styleable.RoundProgressBar_textColor, Color.GREEN);
@@ -85,7 +99,12 @@ public class ProgressCircle extends View {
         sweepAngle = mTypedArray.getFloat(R.styleable.RoundProgressBar_sweepAngle,360f);
         shape = mTypedArray.getInt(R.styleable.RoundProgressBar_shape,0);
         canAnimation = mTypedArray.getBoolean(R.styleable.RoundProgressBar_animation,false);
+        mTypedArray.recycle();
 
+        initValue();
+    }
+
+    private void initValue() {
         bgCirclePaint = new Paint();
         ftCirclePaint = new Paint();
         textPaint = new Paint();
@@ -95,6 +114,7 @@ public class ProgressCircle extends View {
         textPaint.setColor(textColor);
         textPaint.setTextSize(textSize);
         textPaint.setTypeface(Typeface.DEFAULT_BOLD); //设置字体
+        textPaint.setAntiAlias(true);  //消除锯齿
         //背景圆画笔
         bgCirclePaint.setColor(roundColor); //设置圆环的颜色
         bgCirclePaint.setStyle(Paint.Style.STROKE); //设置空心
@@ -104,11 +124,27 @@ public class ProgressCircle extends View {
         ftCirclePaint.setStrokeWidth(frontRoundWidth); //设置圆环的宽度
         ftCirclePaint.setColor(roundProgressColor);  //设置进度的颜色
         ftCirclePaint.setAntiAlias(true);
+        ftCirclePaint.setStrokeCap(Paint.Cap.ROUND);//画圆的时候头和尾自动带圆形
 
         ftCirclePaintArrow.setAntiAlias(true);
         ftCirclePaintArrow.setColor(roundProgressColor);
         ftCirclePaintArrow.setStyle(Paint.Style.FILL);
-        mTypedArray.recycle();
+
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        maxRoundWidth = Math.max(frontRoundWidth,backgroundRoundWidth);
+        //获取圆心的x坐标
+        center = getWidth() / 2;
+        //圆环的半径,进度圆环比底部圆环大一些
+        backgroundRadius = (int) (center - maxRoundWidth / 2);
+        rectF = new RectF();
+        rectF.set(maxRoundWidth / 2, maxRoundWidth / 2, getWidth() - maxRoundWidth / 2, getHeight() - maxRoundWidth / 2);
+
+        oval = new RectF(maxRoundWidth / 2,maxRoundWidth / 2,getWidth()-maxRoundWidth/2,getHeight()-maxRoundWidth/2);
+
     }
 
     @Override
@@ -118,34 +154,30 @@ public class ProgressCircle extends View {
             progress = startValue;
         }
         //画最外层的大圆环
-        int center = getWidth() / 2; //获取圆心的x坐标
-        int backgroundRadius = (int) (center - frontRoundWidth / 2); //圆环的半径,-2：进度圆环比底部圆环大一些
         if (shape == CIRCLE) {
             canvas.drawCircle(center, center, backgroundRadius, bgCirclePaint); //画出圆环
         } else if (shape == ARC) {
-            RectF rectF = new RectF();
-            rectF.set(frontRoundWidth / 2, frontRoundWidth / 2, getWidth() - frontRoundWidth / 2, getHeight() - frontRoundWidth / 2);
             canvas.drawArc(rectF, startAngle, sweepAngle, false, bgCirclePaint);
         }
         //画中间的文字
-        int percent = (int) (((float) progress / (float) max) * 100);  //中间的进度百分比，先转换成float在进行除法运算，不然都为0
-        if (textIsDisplayable) {
-            percentValue = percent + "%";
-            if (onProgressChangeListener!=null){
-                if(!TextUtils.isEmpty(onProgressChangeListener.modifyValue(percentValue))){
-                    percentValue = onProgressChangeListener.modifyValue(percentValue);
-                }
+        //中间的进度百分比，先转换成float在进行除法运算，不然都为0
+        percent = (int) (((float) progress / (float) max) * 100);
+        percentValue = percent + "%";
+        if (onProgressChangeListener!=null){
+            if(!TextUtils.isEmpty(onProgressChangeListener.modifyValue(percentValue))){
+                percentValue = onProgressChangeListener.modifyValue(percentValue);
             }
+        }
+        if (textIsDisplayable){
             canvas.drawText(percentValue, (getWidth() - textPaint.measureText(percentValue)) / 2.0f, (getHeight() - (textPaint.descent() + textPaint.ascent())) / 2.0f, textPaint);
-            if (canAnimation) {
-                if (onProgressChangeListener != null) {
-                    onProgressChangeListener.progressChanging(percentValue);
-                }
+        }
+        if (canAnimation) {
+            if (onProgressChangeListener != null) {
+                onProgressChangeListener.progressChanging(percentValue);
             }
-
         }
         //画进度
-        RectF oval = new RectF(frontRoundWidth / 2,frontRoundWidth / 2,getWidth()-frontRoundWidth/2,getHeight()-frontRoundWidth/2);  //用于定义的圆弧的形状和大小的界限
+        //用于定义的圆弧的形状和大小的界限
         switch (style) {
             case STROKE: {
                 ftCirclePaint.setStyle(Paint.Style.STROKE);
@@ -160,16 +192,16 @@ public class ProgressCircle extends View {
             }
         }
         //进度条最前面和最后面的圆形图（sin和cos里面是π值，需要转化）
-        int angle = (int) (startAngle + sweepAngle * progress/max);
-        int frontSmallCircleY = (int) ((center - frontRoundWidth/2)*Math.sin(Math.PI/180 * angle));
-        int frontSmallCircleX = (int) ((center - frontRoundWidth/2)*Math.cos(Math.PI/180 * angle));
-        int backSmallCircleX = (int) ((center - frontRoundWidth/2)*Math.cos(Math.PI/180 * startAngle));
-        int backSmallCircleY = (int) ((center - frontRoundWidth/2)*Math.sin(Math.PI/180 * startAngle));
-        //画布移动，然后画进度条最前面的圆和最后面的圆，画完之后恢复画布
-        canvas.translate(center,center);
-        canvas.drawCircle(frontSmallCircleX,frontSmallCircleY,frontRoundWidth/2,ftCirclePaintArrow);
-        canvas.drawCircle(backSmallCircleX,backSmallCircleY,frontRoundWidth/2,ftCirclePaintArrow);
-        canvas.translate(-center,-center);
+//        angle = (float) (startAngle + sweepAngle * progress *1.0 /max);
+//        frontSmallCircleY = (float) ((center - maxRoundWidth/2)* Math.sin(Math.PI/180 * angle));
+//        frontSmallCircleX = (float) ((center - maxRoundWidth/2)* Math.cos(Math.PI/180 * angle));
+//        backSmallCircleX = (float) ((center - maxRoundWidth/2)* Math.cos(Math.PI/180 * startAngle));
+//        backSmallCircleY = (float) ((center - maxRoundWidth/2)* Math.sin(Math.PI/180 * startAngle));
+//        //画布移动，然后画进度条最前面的圆和最后面的圆，画完之后恢复画布
+//        canvas.translate(center, center);
+//        canvas.drawCircle(frontSmallCircleX, frontSmallCircleY,frontRoundWidth/2,ftCirclePaintArrow);
+//        canvas.drawCircle(backSmallCircleX, backSmallCircleY,frontRoundWidth/2,ftCirclePaintArrow);
+//        canvas.translate(-center,-center);
 
         if (canAnimation){
             if (startValue >= defaultProgress){
@@ -177,8 +209,11 @@ public class ProgressCircle extends View {
                     onProgressChangeListener.onEndProgressChange(percentValue);
                 }
             }else {
-                startValue++;
-                postInvalidateDelayed(10);
+                startValue += 2;
+                if (startValue >=defaultProgress){
+                    startValue = defaultProgress;
+                }
+                invalidate();
             }
         }
     }
@@ -268,11 +303,9 @@ public class ProgressCircle extends View {
 
 
     public static abstract class OnProgressChangeListener{
-        public abstract void progressChanging(String percent);
-        public  void onStartProgressChange(){
-
-        }
-        public abstract void onEndProgressChange(String endValue);
+        public  void progressChanging(String percent){};
+        public  void onStartProgressChange(){}
+        public  void onEndProgressChange(String endValue){};
         public String modifyValue(String value){
             return value;
         }
