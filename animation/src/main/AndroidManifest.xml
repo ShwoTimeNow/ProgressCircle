@@ -16,6 +16,7 @@
 			</intent-filter>
 		</activity>
 		<activity android:name=".paint.PaintActivity"/>
+		<activity android:name=".value_animation.ValueAnimationActivity"/>
 	</application>
 
 </manifest>

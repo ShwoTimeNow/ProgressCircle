@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  android:orientation="vertical"
+			  android:layout_width="match_parent"
+			  android:layout_height="match_parent">
+
+
+	<View
+		android:id="@+id/v1"
+		android:layout_marginLeft="100dp"
+		android:layout_marginTop="100dp"
+		android:background="@android:color/holo_red_dark"
+		android:layout_width="50dp"
+		android:layout_height="50dp"/>
+
+
+	<View
+		android:id="@+id/v2"
+		android:layout_marginLeft="200dp"
+		android:layout_marginTop="200dp"
+		android:background="@android:color/holo_red_dark"
+		android:layout_width="50dp"
+		android:layout_height="50dp"/>
+
+	<View
+		android:id="@+id/v3"
+		android:layout_marginLeft="300dp"
+		android:layout_marginTop="300dp"
+		android:background="@android:color/holo_red_dark"
+		android:layout_width="50dp"
+		android:layout_height="50dp"/>
+	<ImageView
+		android:id="@+id/iv1"
+		android:visibility="visible"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:src="@mipmap/ic_launcher"/>
+	<ImageView
+		android:id="@+id/iv2"
+		android:visibility="visible"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:src="@mipmap/ic_launcher"/>
+	<ImageView
+		android:id="@+id/iv3"
+		android:visibility="visible"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:src="@mipmap/ic_launcher"/>
+</RelativeLayout>

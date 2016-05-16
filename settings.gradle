@@ -1,1 +1,1 @@
-include ':app', ':decorview', ':animation'
+include ':app', ':decorview', ':animation', ':customview'
